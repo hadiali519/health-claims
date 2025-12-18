@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Health Insurance Claim System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body {
+    background: url('https://www.smartcommunications.com/wp-content/uploads/Claims_HC-Payer_FeaturedImage-WP-1200x628-1.png') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+section, table {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 5px rgba(59,130,246,0.5);
+}
+
+table tr:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+button {
+    transition: all 0.3s ease;
+}
+button:hover {
+    transform: translateY(-2px);
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 50;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    backdrop-filter: blur(4px);
+    background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+</style>
+</head>
+<body>
+
+<header class="bg-blue-600 text-white text-center p-6 text-3xl font-bold shadow-lg">Smart Health Insurance Claim System</header>
+
+<!-- REGISTER PAGE -->
+<section id="registerPage" class="max-w-md mx-auto mt-10 p-8 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Create Account</h2>
+    <input id="regName" type="text" placeholder="Full Name" class="w-full p-3 mb-4 border rounded-lg">
+    <input id="regEmail" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded-lg">
+    <input id="regPassword" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded-lg">
+    <p id="regMsg" class="text-sm mb-3 hidden"></p>
+    <button onclick="register()" class="w-full bg-gradient-to-r from-green-500 to-green-700 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-800">Register</button>
+    <p class="text-center mt-4 text-sm text-gray-600">Already have an account? <span onclick="showLogin()" class="text-blue-600 cursor-pointer hover:underline">Login</span></p>
+</section>
+
+<!-- LOGIN PAGE -->
+<section id="loginPage" class="max-w-md mx-auto mt-10 p-8 rounded-lg shadow-lg hidden">
+    <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Login</h2>
+    <input id="loginEmail" type="email" placeholder="Email" class="w-full p-3 mb-4 border rounded-lg">
+    <input id="loginPassword" type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded-lg">
+    <p id="loginMsg" class="text-red-600 text-sm mb-3 hidden"></p>
+    <button onclick="login()" class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-800">Login</button>
+    <p class="text-center mt-4 text-sm text-gray-600">New user? <span onclick="showRegister()" class="text-blue-600 cursor-pointer hover:underline">Register</span></p>
+</section>
+
+<!-- USER MAIN SYSTEM -->
+<div id="mainSystem" class="hidden">
+<section id="claimFormSection" class="max-w-3xl mx-auto mt-10 p-8 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Submit Insurance Claim</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <input id="patientName" type="text" placeholder="Patient Name" class="p-3 border rounded-lg">
+        <input id="policyNumber" type="text" placeholder="Policy Number" class="p-3 border rounded-lg">
+        <input id="hospitalName" type="text" placeholder="Hospital Name" class="p-3 border rounded-lg">
+        <input id="claimAmount" type="number" placeholder="Claim Amount" class="p-3 border rounded-lg">
+        <input id="claimDate" type="date" class="p-3 border rounded-lg">
+    </div>
+    <textarea id="description" placeholder="Medical Description" class="w-full mt-5 p-3 border rounded-lg"></textarea>
+    <div class="flex gap-4 mt-6">
+        <button onclick="submitClaim()" class="bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-800">Submit Claim</button>
+        <button onclick="logoutUser()" class="bg-gradient-to-r from-red-500 to-red-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-800">Logout</button>
+    </div>
+</section>
+
+<section id="thankYouSection" class="max-w-3xl mx-auto mt-10 p-8 rounded-lg shadow-lg text-center hidden">
+    <h2 class="text-3xl font-bold mb-6 text-green-600">Thank You!</h2>
+    <p class="mb-6 text-gray-700">Your insurance claim has been submitted successfully.</p>
+    <button onclick="goBack()" class="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-800">Back</button>
+</section>
+
+<section id="claimsSection" class="max-w-4xl mx-auto mt-10 p-6 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Submitted Claims</h2>
+    <div id="allClaimsTables"></div>
+</section>
+</div>
+
+<!-- ADMIN PORTAL -->
+<section id="adminPortal" class="hidden max-w-5xl mx-auto mt-10 p-6 rounded-lg shadow-lg">
+    <h2 class="text-3xl font-bold mb-6 text-red-600">Admin Portal</h2>
+    <button onclick="logoutAdmin()" class="mb-6 bg-gradient-to-r from-red-500 to-red-700 text-white px-5 py-2 rounded-lg font-semibold hover:from-red-600 hover:to-red-800">Logout</button>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse border text-center">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="border px-3 py-2">ID</th>
+                    <th class="border px-3 py-2">Patient Name</th>
+                    <th class="border px-3 py-2">Policy Number</th>
+                    <th class="border px-3 py-2">Hospital</th>
+                    <th class="border px-3 py-2">Amount</th>
+                    <th class="border px-3 py-2">Status</th>
+                    <th class="border px-3 py-2">Fraud Risk</th>
+                    <th class="border px-3 py-2">Action</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody"></tbody>
+        </table>
+    </div>
+</section>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h2 class="text-2xl font-bold mb-4 text-gray-700">Edit Claim</h2>
+        <input id="editPatientName" type="text" placeholder="Patient Name" class="w-full p-3 mb-3 border rounded-lg">
+        <input id="editPolicyNumber" type="text" placeholder="Policy Number" class="w-full p-3 mb-3 border rounded-lg">
+        <input id="editHospitalName" type="text" placeholder="Hospital Name" class="w-full p-3 mb-3 border rounded-lg">
+        <input id="editClaimAmount" type="number" placeholder="Claim Amount" class="w-full p-3 mb-3 border rounded-lg">
+        <input id="editClaimDate" type="date" class="w-full p-3 mb-3 border rounded-lg">
+        <textarea id="editDescription" placeholder="Description" class="w-full p-3 mb-4 border rounded-lg"></textarea>
+        <div class="flex justify-end gap-4">
+            <button onclick="saveEdit()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700">Save</button>
+            <button onclick="closeModal()" class="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentUserEmail = "";
+let editIndex = null;
+
+function showLogin(){ document.getElementById("registerPage").classList.add("hidden"); document.getElementById("loginPage").classList.remove("hidden"); }
+function showRegister(){ document.getElementById("loginPage").classList.add("hidden"); document.getElementById("registerPage").classList.remove("hidden"); }
+
+function register(){
+    const name=document.getElementById("regName").value;
+    const email=document.getElementById("regEmail").value;
+    const password=document.getElementById("regPassword").value;
+    const msg=document.getElementById("regMsg");
+    if(!name||!email||!password){ msg.textContent="All fields required"; msg.classList.remove("hidden"); return; }
+    let users=JSON.parse(localStorage.getItem("users"))||[];
+    if(users.find(u=>u.email===email)){ msg.textContent="Email already registered"; msg.classList.remove("hidden"); return; }
+    users.push({name,email,password});
+    localStorage.setItem("users",JSON.stringify(users));
+    msg.textContent="Registration successful! Please login."; msg.className="text-green-600 text-sm mb-3"; msg.classList.remove("hidden");
+    setTimeout(showLogin,1000);
+}
+
+function login(){
+    const email=document.getElementById("loginEmail").value;
+    const password=document.getElementById("loginPassword").value;
+    if(email==="admin@gmail.com" && password==="12345"){
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("adminPortal").classList.remove("hidden");
+        renderAdminTable();
+        return;
+    }
+    const users=JSON.parse(localStorage.getItem("users"))||[];
+    const valid=users.find(u=>u.email===email && u.password===password);
+    if(valid){ currentUserEmail=email; document.getElementById("loginPage").classList.add("hidden"); document.getElementById("mainSystem").classList.remove("hidden"); renderUserTable(); }
+    else alert("Invalid credentials");
+}
+
+function detectFraud(claim){
+    let risk="Low";
+    if(claim.claimAmount>10000) risk="fraud";
+    if(claim.hospitalName.toLowerCase().includes("private")) risk="fraud";
+    return risk;
+}
+
+function submitClaim(){
+    const patientName=document.getElementById("patientName").value;
+    const policyNumber=document.getElementById("policyNumber").value;
+    const hospitalName=document.getElementById("hospitalName").value;
+    const claimAmount=document.getElementById("claimAmount").value;
+    const claimDate=document.getElementById("claimDate").value;
+    const description=document.getElementById("description").value;
+    if(!patientName||!policyNumber||!hospitalName||!claimAmount||!claimDate){ alert("Fill all fields"); return; }
+    let claims=JSON.parse(localStorage.getItem("claims"))||[];
+    const fraudRisk=detectFraud({claimAmount,hospitalName});
+    claims.push({id:"CLM-"+(claims.length+1), patientName, policyNumber, hospitalName, claimAmount, claimDate, description, status:"Submitted", fraudRisk, userEmail:currentUserEmail});
+    localStorage.setItem("claims",JSON.stringify(claims));
+    document.getElementById("claimFormSection").classList.add("hidden");
+    document.getElementById("thankYouSection").classList.remove("hidden");
+    renderUserTable();
+    document.getElementById("patientName").value="";
+    document.getElementById("policyNumber").value="";
+    document.getElementById("hospitalName").value="";
+    document.getElementById("claimAmount").value="";
+    document.getElementById("claimDate").value="";
+    document.getElementById("description").value="";
+}
+
+function goBack(){ document.getElementById("thankYouSection").classList.add("hidden"); document.getElementById("claimFormSection").classList.remove("hidden"); }
+function logoutUser(){ currentUserEmail=""; document.getElementById("mainSystem").classList.add("hidden"); document.getElementById("loginPage").classList.remove("hidden"); }
+function logoutAdmin(){ document.getElementById("adminPortal").classList.add("hidden"); document.getElementById("loginPage").classList.remove("hidden"); }
+
+function renderUserTable(){
+    const claims=JSON.parse(localStorage.getItem("claims"))||[];
+    const container=document.getElementById("allClaimsTables");
+    container.innerHTML="";
+    claims.filter(c=>c.userEmail===currentUserEmail).forEach(c=>{
+        const table=document.createElement("table");
+        table.className="w-full border-collapse border mb-6";
+        table.innerHTML=`
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="border px-2 py-1">ID</th>
+                <th class="border px-2 py-1">Patient Name</th>
+                <th class="border px-2 py-1">Policy Number</th>
+                <th class="border px-2 py-1">Hospital</th>
+                <th class="border px-2 py-1">Amount</th>
+                <th class="border px-2 py-1">Date</th>
+                <th class="border px-2 py-1">Description</th>
+                <th class="border px-2 py-1">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="border px-2 py-1">${c.id}</td>
+                <td class="border px-2 py-1">${c.patientName}</td>
+                <td class="border px-2 py-1">${c.policyNumber}</td>
+                <td class="border px-2 py-1">${c.hospitalName}</td>
+                <td class="border px-2 py-1">${c.claimAmount}</td>
+                <td class="border px-2 py-1">${c.claimDate}</td>
+                <td class="border px-2 py-1">${c.description}</td>
+                <td class="border px-2 py-1">${c.status}</td>
+            </tr>
+        </tbody>`;
+        container.appendChild(table);
+    });
+}
+
+function renderAdminTable(){
+    const claims=JSON.parse(localStorage.getItem("claims"))||[];
+    const tbody=document.getElementById("adminTableBody");
+    tbody.innerHTML="";
+    claims.forEach((c,index)=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+        <td class="border px-2 py-1">${c.id}</td>
+        <td class="border px-2 py-1">${c.patientName}</td>
+        <td class="border px-2 py-1">${c.policyNumber}</td>
+        <td class="border px-2 py-1">${c.hospitalName}</td>
+        <td class="border px-2 py-1">${c.claimAmount}</td>
+        <td class="border px-2 py-1">${c.status}</td>
+        <td class="border px-2 py-1">${c.fraudRisk}</td>
+        <td class="border px-2 py-1 flex gap-2 justify-center">
+            <button onclick="openEditModal(${index})" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">Edit</button>
+            <button onclick="markDone(${index})" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">Done</button>
+            <button onclick="deleteClaim(${index})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Delete</button>
+        </td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+// Admin actions
+function markDone(index){
+    const claims=JSON.parse(localStorage.getItem("claims"))||[];
+    claims[index].status="Done"; claims[index].fraudRisk="Checked";
+    localStorage.setItem("claims",JSON.stringify(claims));
+    renderAdminTable(); renderUserTable();
+}
+function deleteClaim(index){
+    if(confirm("Are you sure?")){
+        let claims=JSON.parse(localStorage.getItem("claims"))||[];
+        claims.splice(index,1);
+        localStorage.setItem("claims",JSON.stringify(claims));
+        renderAdminTable(); renderUserTable();
+    }
+}
+
+// Modal functions
+function openEditModal(index){
+    editIndex=index;
+    const claims=JSON.parse(localStorage.getItem("claims"))||[];
+    const claim=claims[index];
+    document.getElementById("editPatientName").value=claim.patientName;
+    document.getElementById("editPolicyNumber").value=claim.policyNumber;
+    document.getElementById("editHospitalName").value=claim.hospitalName;
+    document.getElementById("editClaimAmount").value=claim.claimAmount;
+    document.getElementById("editClaimDate").value=claim.claimDate;
+    document.getElementById("editDescription").value=claim.description;
+    document.getElementById("editModal").style.display="block";
+}
+function closeModal(){ document.getElementById("editModal").style.display="none"; }
+function saveEdit(){
+    const claims=JSON.parse(localStorage.getItem("claims"))||[];
+    const claim=claims[editIndex];
+    claim.patientName=document.getElementById("editPatientName").value;
+    claim.policyNumber=document.getElementById("editPolicyNumber").value;
+    claim.hospitalName=document.getElementById("editHospitalName").value;
+    claim.claimAmount=document.getElementById("editClaimAmount").value;
+    claim.claimDate=document.getElementById("editClaimDate").value;
+    claim.description=document.getElementById("editDescription").value;
+    claim.fraudRisk=detectFraud({claimAmount:claim.claimAmount,hospitalName:claim.hospitalName});
+    localStorage.setItem("claims",JSON.stringify(claims));
+    closeModal(); renderAdminTable(); renderUserTable();
+}
+
+// Close modal when clicking outside
+window.onclick = function(event){
+    if(event.target==document.getElementById("editModal")) closeModal();
+}
+</script>
+</body>
+</html>
